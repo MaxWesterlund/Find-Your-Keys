@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Unity.Properties;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,8 +12,8 @@ public class PlayerInteract : MonoBehaviour {
     
     [SerializeField] float reach;
 
-    Interactable highlightedItem;
-    Interactable heldItem;
+    Interactable highlightedInteractable;
+    GameObject heldItem;
 
     void Start() {
         PlayerInputManager.Instance.SubPerformed("Interact", OnInteract);
@@ -18,14 +21,13 @@ public class PlayerInteract : MonoBehaviour {
     }
 
     void Update() {
-        print(heldItem);
         List<Interactable> interactables = FindObjectsOfType<Interactable>().ToList();
         if (heldItem != null) {
-            interactables.Remove(heldItem);
+            interactables.Remove(heldItem.GetComponent<Interactable>());
         }
 
         if (interactables.Count == 0) {
-            highlightedItem = null;
+            highlightedInteractable = null;
             return;
         }
         
@@ -42,16 +44,23 @@ public class PlayerInteract : MonoBehaviour {
         }
         
         if (closestDistance <= reach) {
-            highlightedItem = closest;
+            highlightedInteractable = closest;
         }
         else {
-            highlightedItem = null;
+            highlightedInteractable = null;
+            return;
         }
     }
 
     void OnInteract(InputAction.CallbackContext ctx) {
-        if (highlightedItem != null) {
-            AddInteractableToHand(highlightedItem);
+        if (highlightedInteractable == null) return;
+            
+        string baseType = highlightedInteractable.GetType().BaseType.Name; 
+        if (baseType == "Item") {
+            AddItemToHand(highlightedInteractable.gameObject);
+        }
+        else if (baseType == "Usable") {
+            UseUsable(highlightedInteractable.gameObject.GetComponent<Usable>());
         }
     }
 
@@ -59,19 +68,31 @@ public class PlayerInteract : MonoBehaviour {
         DropHeldItem();
     }
 
-    void AddInteractableToHand(Interactable interactable) {
+    void AddItemToHand(GameObject item) {
         if (heldItem != null) {
             heldItem.transform.parent = null;
         }
-        heldItem = interactable;
-        interactable.transform.parent = hand;
-        interactable.transform.localPosition = Vector3.zero;
+        heldItem = item;
+        item.transform.parent = hand;
+        item.transform.localPosition = Vector3.zero;
+    }
+
+    void UseUsable(Usable usable) {
+        if (usable.CanUse(heldItem)) {
+            usable.Use();
+            RemoveHeldItem();
+        }
     }
 
     void DropHeldItem() {
         if (heldItem == null) return;
 
         heldItem.transform.parent = null;
+        heldItem = null;
+    }
+
+    void RemoveHeldItem() {
+        Destroy(heldItem);
         heldItem = null;
     }
 }
