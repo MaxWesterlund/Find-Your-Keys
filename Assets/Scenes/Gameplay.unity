@@ -432,7 +432,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 044ac3aba25f9334784e4e9372891c07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 3
+  speed: 2
 --- !u!143 &713406624
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1158,8 +1158,10 @@ MonoBehaviour:
   center: {fileID: 1073478808}
   leftTarget: {fileID: 1112594777}
   rightTarget: {fileID: 991346325}
-  minStepLength: 0.5
-  maxStepLength: 10
+  balanceRadius: 0.5
+  footSpacing: 0.35
+  stepTime: 0.2
+  stepHeight: 0.15
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

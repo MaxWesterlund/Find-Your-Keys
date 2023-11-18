@@ -6,50 +6,58 @@ public class ProceduralWalk : MonoBehaviour {
     [SerializeField] Transform center;
     [SerializeField] Transform leftTarget;
     [SerializeField] Transform rightTarget;
+    
+    [SerializeField] float balanceRadius;
+    [SerializeField] float footSpacing;
 
-    [SerializeField] float minStepLength;
-    [SerializeField] float maxStepLength;
+    [SerializeField] float stepTime;
+    [SerializeField] float stepHeight;
+    
+    Vector3 lastBalancePoint;
+    Vector3 nextLeftPosition;
+    Vector3 nextRightPosition;
+    Vector3 lastLeftGroundPosition;
+    Vector3 lastRightGroundPosition;
 
-    Vector3 lastCenterPos;
-    Vector3 lastLeftTargetPos;
-    Vector3 lastRightTargetPos;
+    float leftLeaveGroundTime;
+    float rightLeaveGroundTime;
+
+    bool shouldMoveLeft;
 
     void Update() {
-        leftTarget.position = lastLeftTargetPos;
-        rightTarget.position = lastRightTargetPos;
+        float leftProgress = 1 - Mathf.Clamp(leftLeaveGroundTime + stepTime - Time.time, 0, stepTime) / stepTime;
+        float rightProgress = 1 - Mathf.Clamp(rightLeaveGroundTime + stepTime - Time.time, 0, stepTime) / stepTime;
+        leftTarget.position = Vector3.Lerp(lastLeftGroundPosition, nextLeftPosition, leftProgress) + Mathf.Sin(leftProgress * Mathf.PI) * stepHeight * Vector3.up;
+        rightTarget.position = Vector3.Lerp(lastRightGroundPosition, nextRightPosition, rightProgress) + Mathf.Sin(rightProgress * Mathf.PI) * stepHeight * Vector3.up;
 
-        if (!IsInBalanceBox()) {
-            float leftDist = Vector2.Distance(AsVec2(leftTarget.position), AsVec2(center.position));
-            float rightDist = Vector2.Distance(AsVec2(rightTarget.position), AsVec2(center.position));
-            Transform move = leftDist > rightDist ? leftTarget : rightTarget;
+        if (Vector3.Distance(center.position, lastBalancePoint) > balanceRadius) {
+            Transform movingLeg = shouldMoveLeft ? leftTarget : rightTarget;
+            Vector3 dir = (center.position - lastBalancePoint) / balanceRadius;
+            float angle = Mathf.Atan2(dir.z, dir.x);
+            float offsetAngle = angle + (shouldMoveLeft ? 1 : -1) * 90;
+            Vector3 offset = footSpacing / 2 * new Vector3(Mathf.Cos(offsetAngle), 0, Mathf.Sin(offsetAngle));
+            Vector3 movement = balanceRadius * 1.4f * dir + (center.position - movingLeg.position) + offset;
 
-            Vector3 dir = (center.position - lastCenterPos).normalized;
-            float footDist = Mathf.Clamp(Vector2.Distance(AsVec2(leftTarget.position), AsVec2(rightTarget.position)), minStepLength, maxStepLength);
-            Vector3 moveAmnt = 2 * footDist * dir;
-            move.position += moveAmnt;
+            if (shouldMoveLeft) {
+                leftLeaveGroundTime = Time.time;
+                nextLeftPosition = new Vector3(leftTarget.position.x, 0, leftTarget.position.z) + movement;
+                lastLeftGroundPosition = new Vector3(leftTarget.position.x, 0, leftTarget.position.z);
+            }
+            else {
+                rightLeaveGroundTime = Time.time;
+                nextRightPosition = new Vector3(rightTarget.position.x, 0, rightTarget.position.z) + movement;
+                lastRightGroundPosition = new Vector3(rightTarget.position.x, 0, rightTarget.position.z);
+            }
+            
+            lastBalancePoint = center.position;
+            shouldMoveLeft = !shouldMoveLeft;
         }
-
-        lastCenterPos = Ground(center.position);
-        lastLeftTargetPos = Ground(leftTarget.position);
-        lastRightTargetPos = Ground(rightTarget.position);
     }
 
-    bool IsInBalanceBox() {
-        float upperLimit = Mathf.Max(leftTarget.position.z, rightTarget.position.z);
-        float lowerLimit = Mathf.Min(leftTarget.position.z, rightTarget.position.z);
-        float leftLimit = Mathf.Min(leftTarget.position.x, rightTarget.position.x);
-        float rightLimit = Mathf.Max(leftTarget.position.x, rightTarget.position.x);
-        if (center.position.z > upperLimit || center.position.z < lowerLimit || center.position.x < leftLimit || center.position.x > rightLimit) {
-            return false;
-        }
-        return true;
-    }
-
-    Vector2 AsVec2(Vector3 vec) {
-        return new Vector2(vec.x, vec.z);
-    }
-
-    Vector3 Ground(Vector3 vec) {
-        return new Vector3(vec.x, 0, vec.z);
+    void OnDrawGizmos() {
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(lastBalancePoint, 0.1f);
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(center.position, balanceRadius);
     }
 }

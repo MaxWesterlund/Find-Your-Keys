@@ -22,8 +22,8 @@ public class PlayerMovement : MonoBehaviour {
     void FixedUpdate() {
         controller.Move(speed * Time.fixedDeltaTime * moveDirection);
         Vector3 rotDir = moveDirection == Vector3.zero ? lastMoveDirection : moveDirection;
-        float rotation = Mathf.Atan2(rotDir.x, rotDir.z) * Mathf.Rad2Deg;
-        transform.eulerAngles = rotation * Vector3.up;
+        Quaternion targetRotation = Quaternion.LookRotation(rotDir);
+        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 5 * Time.fixedDeltaTime);
     }
 
     void OnMove(InputAction.CallbackContext ctx) {
