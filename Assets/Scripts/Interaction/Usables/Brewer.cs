@@ -12,6 +12,9 @@ public class Brewer : Usable {
         if (item == null) {
             return false;
         }
+        else if (item.GetComponent<Coffe>() == null && item.GetComponent<EmptyPot>() == null) {
+            return false;
+        }
         else if (hasCoffe && item.GetComponent<Coffe>() != null) {
             return false;
         }

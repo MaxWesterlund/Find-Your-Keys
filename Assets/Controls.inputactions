@@ -33,7 +33,7 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Reach",
+                    "name": "Left Reach",
                     "type": "Button",
                     "id": "4406e99b-6949-42d9-98b1-715061de603d",
                     "expectedControlType": "Button",
@@ -42,18 +42,9 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Left Hand",
+                    "name": "Right Reach",
                     "type": "Button",
-                    "id": "c682a21f-5f1b-458a-8dfb-69e72a6df425",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Right Hand",
-                    "type": "Button",
-                    "id": "20ffdc32-b1ac-4a17-b767-94e89346ee5b",
+                    "id": "e5c98f69-c034-43fa-aad9-c00a75005a8d",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -141,33 +132,22 @@
                 {
                     "name": "",
                     "id": "0f928d22-3ecd-4bea-bcdb-abd81ae34eb1",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Left Reach",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4ca18c95-84d6-43a7-8474-3dbd32bfd831",
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Reach",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "34686b31-0cb4-4e52-9a6c-26934b360977",
-                    "path": "<Keyboard>/1",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Left Hand",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "d326d28a-6cb0-4ea1-94a7-7cf9e5972465",
-                    "path": "<Keyboard>/2",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Right Hand",
+                    "action": "Right Reach",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

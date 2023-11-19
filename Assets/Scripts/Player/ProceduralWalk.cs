@@ -38,8 +38,7 @@ public class ProceduralWalk : MonoBehaviour {
             float offsetAngle = angle + (shouldMoveLeft ? 1 : -1) * 90;
             Vector3 offset = footSpacing / 2 * new Vector3(Mathf.Cos(offsetAngle), 0, Mathf.Sin(offsetAngle));
             Transform movingLeg = shouldMoveLeft ? leftTarget : rightTarget;
-            Vector3 movement = (balanceRadius - center.localPosition.z) * 1.4f * dir + (center.position - movingLeg.position) + offset;
-            
+            Vector3 movement = (balanceRadius - center.localPosition.z) * dir + (center.position - movingLeg.position) + offset;
 
             if (shouldMoveLeft) {
                 leftLeaveGroundTime = Time.time;

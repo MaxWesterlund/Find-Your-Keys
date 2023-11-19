@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,7 +13,9 @@ public class PlayerInteract : MonoBehaviour {
     [SerializeField] Transform center;
 
     [SerializeField] Vector3 handRestingPosition;
+    [SerializeField] Vector3 handReadyPosition;
     [SerializeField] Vector3 handHoldingPosition;
+    [SerializeField] Vector3 handReadyHoldingPosition;
 
     [SerializeField] float reach;
 
@@ -27,19 +30,16 @@ public class PlayerInteract : MonoBehaviour {
     bool isReaching;
 
     void Start() {
-        PlayerInputManager.Instance.SubPerformedAndCanceled("Reach", OnReach);
+        PlayerInputManager.Instance.SubPerformedAndCanceled("Left Reach", OnLeftReach);
+        PlayerInputManager.Instance.SubPerformedAndCanceled("Right Reach", OnRightReach);
         PlayerInputManager.Instance.SubPerformed("Interact", OnInteract);
         PlayerInputManager.Instance.SubPerformed("Drop", OnDrop);
-        PlayerInputManager.Instance.SubPerformed("Left Hand", OnLeftHand);
-        PlayerInputManager.Instance.SubPerformed("Right Hand", OnRightHand);
 
         leftHand = new Hand(
-            "Left", leftTarget, leftHandGrip, 
-            new Vector3(-handRestingPosition.x, handRestingPosition.y, handRestingPosition.z), 
-            new Vector3(-handHoldingPosition.x, handHoldingPosition.y, handHoldingPosition.z)
+            "Left", leftTarget, leftHandGrip
         );
         rightHand = new Hand(
-            "Right", rightTarget, rightHandGrip, handRestingPosition, handHoldingPosition
+            "Right", rightTarget, rightHandGrip
         );
 
         currentHand = leftHand;
@@ -92,21 +92,37 @@ public class PlayerInteract : MonoBehaviour {
 
     void MoveHand(Hand hand) {
         Vector3 targetPos;
-        if (isReaching && highlightedInteractable != null && hand.Name == currentHand.Name) {
-            targetPos = highlightedInteractable.transform.position;
+        int handLocation = hand.Name == "Left" ? -1 : 1;
+        if (isReaching && hand.Name == currentHand.Name) {
+            if (highlightedInteractable != null) {
+                targetPos = highlightedInteractable.transform.position;
+            }
+            else if (hand.HeldItem != null) {
+                targetPos = transform.TransformPoint(new Vector3(handReadyHoldingPosition.x * handLocation, handReadyHoldingPosition.y, handHoldingPosition.z));
+            }
+            else {
+                targetPos = transform.TransformPoint(new Vector3(handReadyPosition.x * handLocation, handReadyPosition.y, handReadyPosition.z));
+            }
         }
         else if (hand.HeldItem != null) {
-            targetPos = transform.TransformPoint(hand.HoldingPosition);
+            targetPos = transform.TransformPoint(new Vector3(handHoldingPosition.x * handLocation, handHoldingPosition.y, handHoldingPosition.z));
         }
         else {
-            targetPos = transform.TransformPoint(hand.RestingPosition);
+            targetPos = transform.TransformPoint(new Vector3(handRestingPosition.x * handLocation, handRestingPosition.y, handRestingPosition.z));
         }
         hand.Target.position = Vector3.Lerp(hand.Target.position, targetPos, handMoveSpeed * Time.deltaTime);
     }
 
-    void OnReach(InputAction.CallbackContext ctx) {
+    void OnLeftReach(InputAction.CallbackContext ctx) {
         bool value = ctx.ReadValueAsButton();
         isReaching = value;
+        currentHand = leftHand;
+    }
+
+    void OnRightReach(InputAction.CallbackContext ctx) {
+        bool value = ctx.ReadValueAsButton();
+        isReaching = value;
+        currentHand = rightHand;
     }
 
     void OnInteract(InputAction.CallbackContext ctx) {
@@ -119,14 +135,6 @@ public class PlayerInteract : MonoBehaviour {
         else if (baseType == "Usable") {
             UseUsable(highlightedInteractable.gameObject.GetComponent<Usable>());
         }
-    }
-
-    void OnLeftHand(InputAction.CallbackContext ctx) {
-        currentHand = leftHand;
-    }
-
-    void OnRightHand(InputAction.CallbackContext ctx) {
-        currentHand = rightHand;
     }
     
     string GetBaseType(Interactable interactable) {
@@ -142,9 +150,10 @@ public class PlayerInteract : MonoBehaviour {
             currentHand.HeldItem.transform.parent = null;
         }
         currentHand.HeldItem = item;
+        Transform hold = item.transform.Find("Hold");
         item.transform.parent = currentHand.Grip;
-        item.transform.localRotation = Quaternion.identity;
-        item.transform.localPosition = Vector3.zero;
+        item.transform.localRotation = hold.localRotation;
+        item.transform.localPosition = currentHand.Grip.InverseTransformPoint(currentHand.Grip.position + item.transform.position - hold.position);
     }
 
     void UseUsable(Usable usable) {
@@ -170,18 +179,13 @@ public class PlayerInteract : MonoBehaviour {
         public string Name;
         public Transform Target;
         public Transform Grip;
-        public Vector3 RestingPosition;
-        public Vector3 HoldingPosition;
 
         public GameObject HeldItem;
 
-        public Hand(string name, Transform target, Transform grip, Vector3 restingPosition, Vector3 holdingPosition) {
+        public Hand(string name, Transform target, Transform grip) {
             Name = name;
             Target = target;
             Grip = grip;
-            RestingPosition = restingPosition;
-            HoldingPosition = holdingPosition;
-
             HeldItem = null;
         }
     }
