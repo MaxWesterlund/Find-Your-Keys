@@ -23,7 +23,9 @@ public class PlayerMovement : MonoBehaviour {
         controller.Move(speed * Time.fixedDeltaTime * moveDirection);
         Vector3 rotDir = moveDirection == Vector3.zero ? lastMoveDirection : moveDirection;
         Quaternion targetRotation = Quaternion.LookRotation(rotDir);
-        transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 5 * Time.fixedDeltaTime);
+        if (moveDirection != Vector3.zero) {
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 5 * Time.fixedDeltaTime);
+        }
     }
 
     void OnMove(InputAction.CallbackContext ctx) {
