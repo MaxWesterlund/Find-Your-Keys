@@ -162,9 +162,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d52c10baa698fde4b8af6a324b817b3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  door: {fileID: 7705480183771148385}
   hinge: {fileID: 8099919827676777830}
-  openAngle: 110
-  openingDuration: 0.4
+  minOpenAngle: 90
+  maxOpenAngle: 96
+  openingDuration: 0.6
   openingCurve:
     serializedVersion: 2
     m_Curve:

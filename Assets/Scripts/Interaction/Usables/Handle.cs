@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Handle : Usable {
-    MeshCollider collider;
+    MeshCollider meshCollider;
 
+    [SerializeField] Transform door;
     [SerializeField] Transform hinge;
-    [SerializeField] float openAngle;
+    [SerializeField] float minOpenAngle;
+    [SerializeField] float maxOpenAngle;
     [SerializeField] float openingDuration;
     [SerializeField] AnimationCurve openingCurve;
 
@@ -18,24 +20,23 @@ public class Handle : Usable {
     bool isOpen;
 
     void Awake() {
-        collider = GetComponentInParent<MeshCollider>();
+        meshCollider = GetComponentInParent<MeshCollider>();
     }
 
     void Update() {
         if (lastOpenTime > Time.time) {
             float progress = 1 - (lastOpenTime - Time.time) / openingDuration;
-            collider.isTrigger = true;
+            meshCollider.isTrigger = true;
             angle = Mathf.Lerp(previousAngle, nextAngle, openingCurve.Evaluate(progress));
         }
         else {
-            collider.isTrigger = false;
+            meshCollider.isTrigger = false;
         }
-        hinge.eulerAngles = Vector3.up * angle;
+        hinge.localEulerAngles = Vector3.up * angle;
     }
 
     public override void Use(GameObject item) {
         Vector3 playerPos = GameObject.Find("Player").transform.position;
-        Transform root = transform.root;
         if (isOpen) {
             isOpen = false;
             previousAngle = nextAngle;
@@ -44,17 +45,18 @@ public class Handle : Usable {
         else {
             isOpen = true;
             previousAngle = nextAngle;
-            if (root.forward == Vector3.forward) {
-            nextAngle = playerPos.z > root.position.z ? -openAngle : openAngle;
+            float angle = Random.Range(minOpenAngle, maxOpenAngle);
+            if (door.forward == Vector3.forward) {
+                nextAngle = playerPos.z > door.position.z ? -angle : angle;
             }
-            else if (root.forward == Vector3.right) {
-                nextAngle = playerPos.x > root.position.x ? -openAngle : openAngle;
+            else if (door.forward == Vector3.right) {
+                nextAngle = playerPos.x > door.position.x ? -angle : angle;
             }
-            else if (root.forward == Vector3.back) {
-                nextAngle = playerPos.z > root.position.z ? openAngle : -openAngle;
+            else if (door.forward == Vector3.back) {
+                nextAngle = playerPos.z > door.position.z ? angle : -angle;
             }
-            else if (root.forward == Vector3.left) {
-                nextAngle = playerPos.x > root.position.x ? openAngle : -openAngle;
+            else if (door.forward == Vector3.left) {
+                nextAngle = playerPos.x > door.position.x ? angle : -angle;
             }
         }
         lastOpenTime = Time.time + openingDuration;
