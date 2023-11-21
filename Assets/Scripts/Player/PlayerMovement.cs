@@ -21,6 +21,7 @@ public class PlayerMovement : MonoBehaviour {
 
     void FixedUpdate() {
         controller.Move(speed * Time.fixedDeltaTime * moveDirection);
+        controller.Move(10 * Vector3.down);
         Vector3 rotDir = moveDirection == Vector3.zero ? lastMoveDirection : moveDirection;
         Quaternion targetRotation = Quaternion.LookRotation(rotDir);
         if (moveDirection != Vector3.zero) {
