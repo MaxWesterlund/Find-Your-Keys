@@ -5550,6 +5550,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 82.001
       objectReference: {fileID: 0}
+    - target: {fileID: 3758124487715115528, guid: f71a75ee00074f2418b44849fd1152a7, type: 3}
+      propertyPath: stepTime
+      value: 0.15
+      objectReference: {fileID: 0}
+    - target: {fileID: 3758124487715115528, guid: f71a75ee00074f2418b44849fd1152a7, type: 3}
+      propertyPath: balanceRadius
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 4712159315667052207, guid: f71a75ee00074f2418b44849fd1152a7, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0.596
