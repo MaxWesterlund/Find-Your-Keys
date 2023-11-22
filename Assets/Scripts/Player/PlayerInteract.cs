@@ -126,7 +126,7 @@ public class PlayerInteract : MonoBehaviour {
     }
 
     void OnInteract(InputAction.CallbackContext ctx) {
-        if (highlightedInteractable == null) return;
+        if (highlightedInteractable == null || !isReaching) return;
             
         string baseType = GetBaseType(highlightedInteractable);
         if (baseType == "Item") {
