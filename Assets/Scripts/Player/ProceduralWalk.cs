@@ -14,7 +14,12 @@ public class ProceduralWalk : MonoBehaviour {
     [SerializeField] float stepTime;
     [SerializeField] float stepHeight;
 
-    Vector3 lastCenterPosition;
+    [Header("Audio")]
+    [SerializeField] float minVolume;
+    [SerializeField] float maxVolume;
+    [SerializeField] AudioSource leftFootSound;
+    [SerializeField] AudioSource rightFootSound;
+
     Vector3 lastBalancePoint;
     Vector3 nextLeftPosition;
     Vector3 nextRightPosition;
@@ -34,6 +39,7 @@ public class ProceduralWalk : MonoBehaviour {
     void Update() {
         float leftProgress = 1 - Mathf.Clamp(leftLeaveGroundTime + stepTime - Time.time, 0, stepTime) / stepTime;
         float rightProgress = 1 - Mathf.Clamp(rightLeaveGroundTime + stepTime - Time.time, 0, stepTime) / stepTime;
+
         leftTarget.position = Vector3.Lerp(lastLeftGroundPosition, nextLeftPosition, leftProgress) + Mathf.Sin(leftProgress * Mathf.PI) * stepHeight * Vector3.up;
         rightTarget.position = Vector3.Lerp(lastRightGroundPosition, nextRightPosition, rightProgress) + Mathf.Sin(rightProgress * Mathf.PI) * stepHeight * Vector3.up;
 
@@ -44,16 +50,6 @@ public class ProceduralWalk : MonoBehaviour {
         if (Vector3.Distance(center.position, lastBalancePoint) > balanceRadius) {
             TakeStep(shouldMoveLeft);
         }
-        else if (Mathf.Abs((center.position - lastCenterPosition).magnitude) < 0.01f * Time.deltaTime) {
-            if (shouldMoveLeft) {
-                nextLeftPosition = center.position - center.right * footSpacing / 2;
-            }
-            else {
-                nextRightPosition = center.position + center.right * footSpacing / 2;
-            }
-        }
-
-        lastCenterPosition = center.position;
     }
 
     void TakeStep(bool shouldMoveLeft) {
@@ -68,14 +64,25 @@ public class ProceduralWalk : MonoBehaviour {
             leftLeaveGroundTime = Time.time;
             nextLeftPosition = new Vector3(leftTarget.position.x, 0, leftTarget.position.z) + movement;
             lastLeftGroundPosition = new Vector3(leftTarget.position.x, 0, leftTarget.position.z);
+
+            StartCoroutine(PlayStepSound(leftFootSound));
         }
         else {
             rightLeaveGroundTime = Time.time;
             nextRightPosition = new Vector3(rightTarget.position.x, 0, rightTarget.position.z) + movement;
             lastRightGroundPosition = new Vector3(rightTarget.position.x, 0, rightTarget.position.z);
+
+            StartCoroutine(PlayStepSound(rightFootSound));
         }
         
         lastBalancePoint = center.position;
+    }
+
+    IEnumerator PlayStepSound(AudioSource source) {
+        yield return new WaitForSeconds(stepTime);
+        float volume = Random.Range(minVolume, maxVolume);
+        source.volume = volume;
+        source.Play();
     }
 
     void OnDrawGizmos() {

@@ -12,7 +12,7 @@ public class Handle : Usable {
     [SerializeField] float openingDuration;
     [SerializeField] AnimationCurve openingCurve;
 
-    float lastOpenTime;
+    float lastInteractTime;
     float previousAngle;
     float nextAngle;
     float angle;
@@ -24,14 +24,15 @@ public class Handle : Usable {
     }
 
     void Update() {
-        if (lastOpenTime > Time.time) {
-            float progress = 1 - (lastOpenTime - Time.time) / openingDuration;
+        if (lastInteractTime > Time.time) {
+            float progress = 1 - (lastInteractTime - Time.time) / openingDuration;
             meshCollider.isTrigger = true;
             angle = Mathf.Lerp(previousAngle, nextAngle, openingCurve.Evaluate(progress));
         }
         else {
             meshCollider.isTrigger = false;
         }
+
         hinge.localEulerAngles = Vector3.up * angle;
     }
 
@@ -59,6 +60,6 @@ public class Handle : Usable {
                 nextAngle = playerPos.x > door.position.x ? angle : -angle;
             }
         }
-        lastOpenTime = Time.time + openingDuration;
+        lastInteractTime = Time.time + openingDuration;
     }
 }

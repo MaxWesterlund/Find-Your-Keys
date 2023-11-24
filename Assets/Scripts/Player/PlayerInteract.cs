@@ -6,20 +6,26 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerInteract : MonoBehaviour {
+    [Header("Transforms")]
     [SerializeField] Transform leftHandGrip;
     [SerializeField] Transform rightHandGrip;
     [SerializeField] Transform leftTarget;
     [SerializeField] Transform rightTarget;
     [SerializeField] Transform center;
 
+    [Header("Positions")]
     [SerializeField] Vector3 handRestingPosition;
     [SerializeField] Vector3 handReadyPosition;
     [SerializeField] Vector3 handHoldingPosition;
     [SerializeField] Vector3 handReadyHoldingPosition;
 
+    [Header("Parameters")]
     [SerializeField] float reach;
-
     [SerializeField] float handMoveSpeed;
+
+    [Header("Audio")]
+    [SerializeField] AudioSource leftPickupSound;
+    [SerializeField] AudioSource rightPickupSound;
     
     Hand leftHand;
     Hand rightHand;
@@ -134,6 +140,13 @@ public class PlayerInteract : MonoBehaviour {
         }
         else if (baseType == "Usable") {
             UseUsable(highlightedInteractable.gameObject.GetComponent<Usable>());
+        }
+
+        if (currentHand.Name == "Left") {
+            leftPickupSound.Play();
+        }
+        else {
+            rightPickupSound.Play();
         }
     }
     
